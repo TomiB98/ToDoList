@@ -61,18 +61,22 @@ public class UserEntity {
         return tasks;
     }
 
-    public void addTask(TaskEntity task) {
-        task.setUser(this);
-        tasks.add(task);
+    public void setTask(Set<TaskEntity> task) {
+        this.tasks = task;
     }
 
-    @Override
-    public String toString() {
-        return "UserEntity{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
+//    public void addTask(TaskEntity task) {
+//        task.setUser(this);
+//        tasks.add(task);
+//    }
+
+//    @Override
+//    public String toString() {
+//        return "UserEntity{" +
+//                "id=" + id +
+//                ", email='" + email + '\'' +
+//                ", username='" + username + '\'' +
+//                ", password='" + password + '\'' +
+//                '}';
+//    }
 }

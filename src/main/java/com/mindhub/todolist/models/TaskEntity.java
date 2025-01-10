@@ -20,10 +20,11 @@ public class TaskEntity {
 
     public TaskEntity() {}
 
-    public TaskEntity(String title, String description, TaskStatus status) {
+    public TaskEntity(String title, String description, TaskStatus status, UserEntity user) {
         this.title = title;
         this.description = description;
         this.status = status;
+        this.user = user;
     }
 
     public Long getId() {

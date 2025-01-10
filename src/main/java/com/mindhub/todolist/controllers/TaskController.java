@@ -37,6 +37,9 @@ public class TaskController {
         if(newTask.status() == null) {
             return new ResponseEntity<>("Status cannot be null or blank", HttpStatus.BAD_REQUEST);
         }
+        if(newTask.user() == null) {
+            return new ResponseEntity<>("User cannot be null or blank", HttpStatus.BAD_REQUEST);
+        }
         TasksDTO savedTask = taskService.createNewTask(newTask);
         return new ResponseEntity<>(savedTask, HttpStatus.CREATED);
     }
