@@ -11,6 +11,8 @@ import com.mindhub.todolist.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TaskServiceImpl implements TaskService {
 
@@ -28,6 +30,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskEntity getTaskById(Long id) throws UserTaskNotFoundException {
         return  taskRepository.findById(id).orElseThrow( () -> new UserTaskNotFoundException("Task not found"));
+    }
+
+    @Override
+    public List<TaskEntity> getAllTasks() {
+        return  taskRepository.findAll();
     }
 
     @Override
@@ -60,5 +67,11 @@ public class TaskServiceImpl implements TaskService {
 
         TaskEntity updatedTask = taskRepository.save(task);
         return new TasksDTO(updatedTask);
+    }
+
+    @Override
+    public void deleteTaskById(Long id) throws UserTaskNotFoundException {
+        TaskEntity task = taskRepository.findById(id).orElseThrow(()-> new UserTaskNotFoundException("Task not found"));
+        taskRepository.deleteById(id);
     }
 }

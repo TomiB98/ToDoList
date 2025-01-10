@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/task")
 public class TaskController {
@@ -29,6 +31,18 @@ public class TaskController {
     private ResponseEntity<?> getTaskById(@PathVariable Long id) throws UserTaskNotFoundException{
         TasksDTO tasksDTO = taskService.getTaskDTOById(id);
         return new ResponseEntity<> (tasksDTO, HttpStatus.OK);
+    }
+
+    @GetMapping
+    private ResponseEntity<?> getAllTasks() throws UserTaskNotFoundException {
+        List<TasksDTO> tasklist = taskService.getAllTasks()
+                .stream()
+                .map(TasksDTO::new)
+                .toList();
+        if(tasklist.size() == 0) {
+             throw new UserTaskNotFoundException("User not found");
+        }
+        return new ResponseEntity<>(tasklist, HttpStatus.OK);
     }
 
     @PostMapping("/submit")
@@ -59,5 +73,9 @@ public class TaskController {
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
-//    @DeleteMapping
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTaskById(@PathVariable Long id) throws UserTaskNotFoundException {
+        taskService.deleteTaskById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
