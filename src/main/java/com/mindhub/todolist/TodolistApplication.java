@@ -38,6 +38,9 @@ public class TodolistApplication {
 //			user.addTask(task);
 //			taskRepository.save(task);
 //			System.out.println(task);
+//			"title": "TrashOut",
+//			"description": "Take the trash bag out",
+//			"status": "PENDING",
 		};
 	}
 }

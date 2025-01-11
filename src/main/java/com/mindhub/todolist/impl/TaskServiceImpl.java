@@ -29,7 +29,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskEntity getTaskById(Long id) throws UserTaskNotFoundException {
-        return  taskRepository.findById(id).orElseThrow( () -> new UserTaskNotFoundException("Task not found"));
+        return  taskRepository.findById(id).orElseThrow( () -> new UserTaskNotFoundException("Task with ID " + id + " not found."));
     }
 
     @Override
@@ -52,7 +52,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TasksDTO updateTaskById(UpdateTask updateTask, Long id) throws UserTaskNotFoundException {
         TaskEntity task = taskRepository.findById(id)
-                .orElseThrow(() -> new UserTaskNotFoundException("Task not found: " + id));
+                .orElseThrow(() -> new UserTaskNotFoundException("Task with ID " + id + " not found."));
         if (updateTask.title().isBlank()) {
             task.setTitle(task.getTitle());
         } else task.setTitle(updateTask.title());
@@ -71,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTaskById(Long id) throws UserTaskNotFoundException {
-        TaskEntity task = taskRepository.findById(id).orElseThrow(()-> new UserTaskNotFoundException("Task not found"));
+        TaskEntity task = taskRepository.findById(id).orElseThrow(()-> new UserTaskNotFoundException("Task with ID " + id + " not found."));
         taskRepository.deleteById(id);
     }
 }

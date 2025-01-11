@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity getUserById(Long id) throws UserTaskNotFoundException {
-        return userRepository.findById(id).orElseThrow( () -> new UserTaskNotFoundException("User not found"));
+        return userRepository.findById(id).orElseThrow( () -> new UserTaskNotFoundException("User with ID " + id + " not found."));
     }
 
     @Override
@@ -40,15 +40,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO updateUserById(UpdateUser updatedUser, Long id) throws BadLogInUpdateException {
-        UserEntity user = userRepository.findById(id).orElseThrow(()-> new BadLogInUpdateException("User not found"));
-        user.setUsername(updatedUser.username());
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(()-> new BadLogInUpdateException("User with ID " + id + " not found."));
+
+        if(updatedUser.username().isBlank()) {
+            user.setUsername(user.getUsername());
+        } else user.setUsername(updatedUser.username());
+
+        if(updatedUser.password().isBlank()) {
+            user.setPassword(user.getPassword());
+        } else user.setPassword(updatedUser.password());
+
         user = userRepository.save(user);
         return new UserDTO(user);
     }
 
     @Override
     public void deleteUserById(Long id) throws UserTaskNotFoundException {
-        UserEntity user = userRepository.findById(id).orElseThrow(()-> new UserTaskNotFoundException("User not found"));
+        UserEntity user = userRepository.findById(id).orElseThrow(()-> new UserTaskNotFoundException("User with ID " + id + " not found."));
         userRepository.deleteById(id);
     }
 }
