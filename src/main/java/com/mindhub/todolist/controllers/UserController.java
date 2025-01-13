@@ -64,7 +64,7 @@ public class UserController {
     }
 
     @PutMapping("update/{id}")
-    @Operation(summary = "Updates a user", description = "Receives an id and updates the assigned user, you can update username or password independently if you leave one blank it will retrieve the old value.")
+    @Operation(summary = "Updates a user", description = "Receives an id and updates the assigned user, you can update username or password independently, if you leave one blank it will retrieve the old value.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User successfully updated."),
             @ApiResponse(responseCode = "409", description = "Bad request, user not found.")

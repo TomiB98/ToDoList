@@ -1,10 +1,5 @@
 package com.mindhub.todolist;
 
-import com.mindhub.todolist.models.TaskEntity;
-import com.mindhub.todolist.models.TaskStatus;
-import com.mindhub.todolist.models.UserEntity;
-import com.mindhub.todolist.repositories.TaskRepository;
-import com.mindhub.todolist.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,16 +13,25 @@ public class TodolistApplication {
 	}
 
 	@Bean
-	public CommandLineRunner initData(UserRepository userRepository, TaskRepository taskRepository) {
-		return args -> {
+	public CommandLineRunner initData() {
+		return args -> System.out.println("Server Running!");
+	}
+}
 
-			System.out.println("Server Running!");
+//import com.mind hub.todolist.repositories.TaskRepository;
+//import com.mind hub.todolist.repositories.UserRepository;
+//import com.mind hub.todolist.models.TaskEntity;
+//import com.mind hub.todolist.models.TaskStatus;
+//import com.mind hub.todolist.models.UserEntity;
+
+// UserRepository , TaskRepository
+// userRepository , taskRepository
 
 //			UserEntity user = new UserEntity("tomas@gmail.com", "Tomas", "123456");
 //			userRepository.save(user);
 //			System.out.println(user);
 
-//			UserEntity user1 = new UserEntity("manubal@gmail.com", "Manuel", "abcdef");
+//			UserEntity user1 = new UserEntity("manubal@gmail.com", "Manuel", "acked");
 //			userRepository.save(user1);
 //			System.out.println(user1);
 
@@ -41,6 +45,3 @@ public class TodolistApplication {
 //			"title": "TrashOut",
 //			"description": "Take the trash bag out",
 //			"status": "PENDING",
-		};
-	}
-}

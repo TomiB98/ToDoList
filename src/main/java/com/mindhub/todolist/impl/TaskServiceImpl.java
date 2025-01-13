@@ -53,6 +53,7 @@ public class TaskServiceImpl implements TaskService {
     public TasksDTO updateTaskById(UpdateTask updateTask, Long id) throws UserTaskNotFoundException {
         TaskEntity task = taskRepository.findById(id)
                 .orElseThrow(() -> new UserTaskNotFoundException("Task with ID " + id + " not found."));
+
         if (updateTask.title().isBlank()) {
             task.setTitle(task.getTitle());
         } else task.setTitle(updateTask.title());

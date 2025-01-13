@@ -1,8 +1,6 @@
 package com.mindhub.todolist.models;
 
-import com.mindhub.todolist.repositories.UserRepository;
 import jakarta.persistence.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -65,6 +63,11 @@ public class UserEntity {
         this.tasks = task;
     }
 
+}
+
+//import com.mind hub.todolist.repositories.UserRepository;
+//import org.springframework.beans.factory.annotation.Autowired;
+
 //    public void addTask(TaskEntity task) {
 //        task.setUser(this);
 //        tasks.add(task);
@@ -79,4 +82,3 @@ public class UserEntity {
 //                ", password='" + password + '\'' +
 //                '}';
 //    }
-}
