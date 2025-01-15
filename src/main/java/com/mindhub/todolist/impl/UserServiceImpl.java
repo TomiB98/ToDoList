@@ -9,13 +9,26 @@ import com.mindhub.todolist.models.UserEntity;
 import com.mindhub.todolist.repositories.UserRepository;
 import com.mindhub.todolist.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private UserRepository userRepository;
+
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserDTO::new)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public UserDTO getUserDTOById(Long id) throws UserTaskNotFoundException {
@@ -29,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createNewUser(NewUser newUser) {
-        UserEntity user = new UserEntity(newUser.email(), newUser.username(), newUser.password());
+        UserEntity user = new UserEntity(newUser.email(), newUser.username(), passwordEncoder.encode(newUser.password()), newUser.role());
         UserEntity savedUser = saveUser(user);
     }
 
@@ -48,8 +61,8 @@ public class UserServiceImpl implements UserService {
         } else user.setUsername(updatedUser.username());
 
         if(updatedUser.password().isBlank()) {
-            user.setPassword(user.getPassword());
-        } else user.setPassword(updatedUser.password());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else user.setPassword(passwordEncoder.encode(updatedUser.password()));
 
         user = userRepository.save(user);
         return new UserDTO(user);

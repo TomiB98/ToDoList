@@ -1,4 +1,6 @@
 package com.mindhub.todolist.dtos;
 
-public record NewUser(String email, String username, String password) {
+import com.mindhub.todolist.models.RoleType;
+
+public record NewUser(String email, String username, String password, RoleType role) {
 }

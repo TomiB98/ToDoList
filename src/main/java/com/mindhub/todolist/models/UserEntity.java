@@ -12,9 +12,14 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     private String email;
+
     private String username;
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
 
     @OneToMany(mappedBy = "user")
     private Set<TaskEntity> tasks = new HashSet<>();
@@ -25,6 +30,13 @@ public class UserEntity {
         this.email = email;
         this.username = username;
         this.password = password;
+    }
+
+    public UserEntity(String email, String username, String password, RoleType roleType) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.role = roleType;
     }
 
     public Long getId() {
@@ -63,6 +75,13 @@ public class UserEntity {
         this.tasks = task;
     }
 
+    public RoleType getRole() {
+        return role;
+    }
+
+    public void setRole(RoleType role) {
+        this.role = role;
+    }
 }
 
 //import com.mind hub.todolist.repositories.UserRepository;
