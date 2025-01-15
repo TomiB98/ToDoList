@@ -36,7 +36,7 @@ public class UserController {
     @Operation(summary = "Gets the user data with the id", description = "Receives an id and returns all the data of the specified user + all his tasks.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Data successfully received."),
-            @ApiResponse(responseCode = "403", description = "Forbidden access to another user's data."),
+            @ApiResponse(responseCode = "403", description = "Forbidden access to another users data."),
             @ApiResponse(responseCode = "400", description = "Bad request, invalid id.")
     })
     public ResponseEntity<?> getUserById(@PathVariable Long id) throws UserTaskNotFoundException {
@@ -47,7 +47,7 @@ public class UserController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
         // Verify if the email of the user matches the one authenticated
         if (!userEntity.getEmail().equals(authenticatedEmail)) {
-            return new ResponseEntity<>("You are not authorized to access this user's data", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("You are not authorized to access this users data", HttpStatus.FORBIDDEN);
         }
         // Returns the user data
         UserDTO userDTO = userService.getUserDTOById(id);
@@ -62,7 +62,7 @@ public class UserController {
     @Operation(summary = "Updates a user", description = "Receives an id and updates the assigned user, you can update username or password independently, if you leave one blank it will retrieve the old value.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User successfully updated."),
-            @ApiResponse(responseCode = "403", description = "Forbidden access to another user's data."),
+            @ApiResponse(responseCode = "403", description = "Forbidden access to another users data."),
             @ApiResponse(responseCode = "409", description = "Bad request, user not found.")
     })
     public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws BadLogInUpdateException {
@@ -73,7 +73,7 @@ public class UserController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
         // Verify if the email of the user matches the one authenticated
         if (!userEntity.getEmail().equals(authenticatedEmail)) {
-            return new ResponseEntity<>("You are not authorized to update this user's data", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("You are not authorized to update this users data", HttpStatus.FORBIDDEN);
         }
         // Updates User
         UserDTO updatedUser = userService.updateUserById(updateUser, id);
@@ -89,7 +89,7 @@ public class UserController {
     @Operation(summary = "Delete a user", description = "Receives an id and and deletes the assigned user.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "User successfully deleted."),
-            @ApiResponse(responseCode = "403", description = "Forbidden access to another user's data."),
+            @ApiResponse(responseCode = "403", description = "Forbidden access to another users data."),
             @ApiResponse(responseCode = "400", description = "Bad request, user not found.")
     })
     public ResponseEntity<?> deleteUserById(@PathVariable Long id) throws UserTaskNotFoundException {
@@ -100,7 +100,7 @@ public class UserController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
         // Verify if the email of the user matches the one authenticated
         if (!userEntity.getEmail().equals(authenticatedEmail)) {
-            return new ResponseEntity<>("You are not authorized to delete this user's data", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("You are not authorized to delete this users data", HttpStatus.FORBIDDEN);
         }
         // Deletes user
         userService.deleteUserById(id);
