@@ -75,4 +75,17 @@ public class TaskServiceImpl implements TaskService {
         TaskEntity task = taskRepository.findById(id).orElseThrow(()-> new UserTaskNotFoundException("Task with ID " + id + " not found."));
         taskRepository.deleteById(id);
     }
+
+    public Long getTaskOwnerId(Long taskId) throws UserTaskNotFoundException {
+        return taskRepository.findById(taskId)
+                .orElseThrow(() -> new UserTaskNotFoundException("Task not found"))
+                .getUser()
+                .getId();
+    }
+
+    public boolean isOwner(String authenticatedUserEmail, Long taskOwnerId) {
+        return userRepository.findByEmail(authenticatedUserEmail)
+                .map(user -> user.getId().equals(taskOwnerId))
+                .orElse(false);
+    }
 }

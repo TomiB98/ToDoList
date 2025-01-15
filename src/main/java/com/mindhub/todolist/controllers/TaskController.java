@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -97,6 +99,17 @@ public class TaskController {
             @ApiResponse(responseCode = "409", description = "Bad request, task not found.")
     })
     public ResponseEntity<?> updateTaskById(@RequestBody UpdateTask updateTask, @PathVariable Long id) throws UserTaskNotFoundException {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String authenticatedUserEmail = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
+
+        Long taskOwnerId = taskService.getTaskOwnerId(id);
+
+        if (!isAdmin && !taskService.isOwner(authenticatedUserEmail, taskOwnerId)) {
+            return new ResponseEntity<>("Unauthorized to update this task", HttpStatus.FORBIDDEN);
+        }
+
         TasksDTO updatedTask = taskService.updateTaskById(updateTask, id);
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
@@ -108,6 +121,17 @@ public class TaskController {
             @ApiResponse(responseCode = "400", description = "Bad request, task not found.")
     })
     public ResponseEntity<?> deleteTaskById(@PathVariable Long id) throws UserTaskNotFoundException {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String authenticatedUserEmail = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
+
+        Long taskOwnerId = taskService.getTaskOwnerId(id);
+
+        if (!isAdmin && !taskService.isOwner(authenticatedUserEmail, taskOwnerId)) {
+            return new ResponseEntity<>("Unauthorized to delete this task", HttpStatus.FORBIDDEN);
+        }
+
         taskService.deleteTaskById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

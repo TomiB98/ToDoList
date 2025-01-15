@@ -23,4 +23,8 @@ public interface TaskService {
     TasksDTO updateTaskById(UpdateTask updateTask, Long id) throws UserTaskNotFoundException; //throws TaskExceptions;
 
     void deleteTaskById(Long id) throws UserTaskNotFoundException;
+
+    boolean isOwner(String authenticatedUserEmail, Long taskOwnerId);
+
+    Long getTaskOwnerId(Long taskId) throws UserTaskNotFoundException;
 }
