@@ -4,6 +4,7 @@ import com.mindhub.todolist.dtos.NewTask;
 import com.mindhub.todolist.dtos.TasksDTO;
 import com.mindhub.todolist.dtos.UpdateTask;
 import com.mindhub.todolist.exeptions.UserTaskNotFoundException;
+import com.mindhub.todolist.models.UserEntity;
 import com.mindhub.todolist.repositories.TaskRepository;
 import com.mindhub.todolist.repositories.UserRepository;
 import com.mindhub.todolist.services.TaskService;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -72,6 +74,7 @@ public class TaskController {
             @ApiResponse(responseCode = "409", description = "Bad request, invalid data.")
     })
     public ResponseEntity<?> createTask(@RequestBody NewTask newTask) throws UserTaskNotFoundException {
+
         if(newTask.title() == null || newTask.title().isBlank()) {
             return new ResponseEntity<>("Title cannot be null or blank", HttpStatus.BAD_REQUEST);
         }
@@ -84,10 +87,26 @@ public class TaskController {
         if(newTask.user() == null) {
             return new ResponseEntity<>("User cannot be null or blank", HttpStatus.BAD_REQUEST);
         }
+
+        // Retrives the authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String authenticatedEmail = authentication.getName();
+        // Finds the user by ID
+        UserEntity userEntity = userRepository.findById(newTask.user().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+        // Finds if it's an Admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
+        // Verify if the email of the user matches the one authenticated of if it's an Admin
+        if (!userEntity.getEmail().equals(authenticatedEmail) && !isAdmin) {
+            return new ResponseEntity<>("Unauthorized to create a task for another user", HttpStatus.FORBIDDEN);
+        }
+
         boolean userExists = userRepository.existsById(newTask.user().getId());
         if (!userExists) {
             throw new UserTaskNotFoundException("User not found");
         }
+
         TasksDTO savedTask = taskService.createNewTask(newTask);
         return new ResponseEntity<>(savedTask, HttpStatus.CREATED);
     }
@@ -100,13 +119,7 @@ public class TaskController {
     })
     public ResponseEntity<?> updateTaskById(@RequestBody UpdateTask updateTask, @PathVariable Long id) throws UserTaskNotFoundException {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authenticatedUserEmail = authentication.getName();
-        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
-
-        Long taskOwnerId = taskService.getTaskOwnerId(id);
-
-        if (!isAdmin && !taskService.isOwner(authenticatedUserEmail, taskOwnerId)) {
+        if (!hasAuthority(id)) {
             return new ResponseEntity<>("Unauthorized to update this task", HttpStatus.FORBIDDEN);
         }
 
@@ -122,17 +135,26 @@ public class TaskController {
     })
     public ResponseEntity<?> deleteTaskById(@PathVariable Long id) throws UserTaskNotFoundException {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authenticatedUserEmail = authentication.getName();
-        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
-
-        Long taskOwnerId = taskService.getTaskOwnerId(id);
-
-        if (!isAdmin && !taskService.isOwner(authenticatedUserEmail, taskOwnerId)) {
+        if (!hasAuthority(id)) {
             return new ResponseEntity<>("Unauthorized to delete this task", HttpStatus.FORBIDDEN);
         }
 
         taskService.deleteTaskById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // Validates if the user is the owner or if it's an Admin
+    private boolean hasAuthority(Long taskId) throws UserTaskNotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String authenticatedUserEmail = authentication.getName();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
+
+        if (isAdmin) {
+            return true;
+        }
+
+        Long taskOwnerId = taskService.getTaskOwnerId(taskId);
+        return taskService.isOwner(authenticatedUserEmail, taskOwnerId);
     }
 }
