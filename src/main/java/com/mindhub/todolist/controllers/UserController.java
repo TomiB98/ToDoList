@@ -40,13 +40,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad request, invalid id.")
     })
     public ResponseEntity<?> getUserById(@PathVariable Long id) throws UserTaskNotFoundException {
-        // Retrives the authenticated user
-        String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        // Finds the user by Id
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
-        // Verify if the email of the user matches the one authenticated
-        if (!userEntity.getEmail().equals(authenticatedEmail)) {
+
+        if(!hasAuthorityUser(id)) {
             return new ResponseEntity<>("You are not authorized to access this users data", HttpStatus.FORBIDDEN);
         }
         // Returns the user data
@@ -65,17 +60,12 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Forbidden access to another users data."),
             @ApiResponse(responseCode = "409", description = "Bad request, user not found.")
     })
-    public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws BadLogInUpdateException {
-        // Retrives the authenticated user
-        String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        // Finds the user by Id
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
-        // Verify if the email of the user matches the one authenticated
-        if (!userEntity.getEmail().equals(authenticatedEmail)) {
+    public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws BadLogInUpdateException, UserTaskNotFoundException {
+
+        if(!hasAuthorityUser(id)) {
             return new ResponseEntity<>("You are not authorized to update this users data", HttpStatus.FORBIDDEN);
         }
-        // Updates User
+
         UserDTO updatedUser = userService.updateUserById(updateUser, id);
         return ResponseEntity.ok(updatedUser);
     }
@@ -93,16 +83,11 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad request, user not found.")
     })
     public ResponseEntity<?> deleteUserById(@PathVariable Long id) throws UserTaskNotFoundException {
-        // Retrives the authenticated user
-        String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        // Finds the user by Id
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
-        // Verify if the email of the user matches the one authenticated
-        if (!userEntity.getEmail().equals(authenticatedEmail)) {
+
+        if(!hasAuthorityUser(id)) {
             return new ResponseEntity<>("You are not authorized to delete this users data", HttpStatus.FORBIDDEN);
         }
-        // Deletes user
+
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }
@@ -111,6 +96,17 @@ public class UserController {
 //        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 //    }
 
+    private boolean hasAuthorityUser(Long id) throws UserTaskNotFoundException {
+        // Retrives the authenticated user
+        String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        // Finds the user by Id
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+        // Verify if the email of the user matches the one authenticated
+        if (!userEntity.getEmail().equals(authenticatedEmail)) {
+            return false;//new ResponseEntity<>("You are not authorized to delete this users data", HttpStatus.FORBIDDEN);
+        } else  return true;
+    }
 
 }
 

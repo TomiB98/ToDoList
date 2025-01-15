@@ -119,7 +119,7 @@ public class TaskController {
     })
     public ResponseEntity<?> updateTaskById(@RequestBody UpdateTask updateTask, @PathVariable Long id) throws UserTaskNotFoundException {
 
-        if (!hasAuthority(id)) {
+        if (!hasAuthorityTask(id)) {
             return new ResponseEntity<>("Unauthorized to update this task", HttpStatus.FORBIDDEN);
         }
 
@@ -135,7 +135,7 @@ public class TaskController {
     })
     public ResponseEntity<?> deleteTaskById(@PathVariable Long id) throws UserTaskNotFoundException {
 
-        if (!hasAuthority(id)) {
+        if (!hasAuthorityTask(id)) {
             return new ResponseEntity<>("Unauthorized to delete this task", HttpStatus.FORBIDDEN);
         }
 
@@ -144,7 +144,7 @@ public class TaskController {
     }
 
     // Validates if the user is the owner or if it's an Admin
-    private boolean hasAuthority(Long taskId) throws UserTaskNotFoundException {
+    private boolean hasAuthorityTask(Long taskId) throws UserTaskNotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authenticatedUserEmail = authentication.getName();
         boolean isAdmin = authentication.getAuthorities().stream()
