@@ -28,11 +28,11 @@ public class TodolistApplication {
 		return args -> {
 
 //			UserEntity user = new UserEntity("tomas@gmail.com", "Tomas", passwordEncoder.encode("123456"));
-			UserEntity user = new UserEntity("tomas@gmail.com", "Tomas", passwordEncoder.encode("123456"), RoleType.USER);
+			UserEntity user = new UserEntity("tomas@gmail.com", "Tomas", passwordEncoder.encode("Tomas123."), RoleType.USER);
 			userRepository.save(user);
 			System.out.println(user);
 
-			UserEntity user1 = new UserEntity("manubal@gmail.com", "Manuel", passwordEncoder.encode("987654"), RoleType.USER);
+			UserEntity user1 = new UserEntity("manubal@gmail.com", "Manuel", passwordEncoder.encode("Manuel123."), RoleType.USER);
 			userRepository.save(user1);
 			System.out.println(user1);
 

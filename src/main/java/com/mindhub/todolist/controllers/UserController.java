@@ -48,9 +48,6 @@ public class UserController {
         UserDTO userDTO = userService.getUserDTOById(id);
         return ResponseEntity.ok(userDTO);
     }
-//    public UserDTO getUserById(@PathVariable Long id) throws UserTaskNotFoundException {
-//        return userService.getUserDTOById(id);
-//    };
 
 
     @PutMapping("update/{id}")
@@ -60,7 +57,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Forbidden access to another users data."),
             @ApiResponse(responseCode = "409", description = "Bad request, user not found.")
     })
-    public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws BadLogInUpdateException, UserTaskNotFoundException {
+    public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws Exception {
 
         if(!hasAuthorityUser(id)) {
             return new ResponseEntity<>("You are not authorized to update this users data", HttpStatus.FORBIDDEN);
@@ -69,10 +66,6 @@ public class UserController {
         UserDTO updatedUser = userService.updateUserById(updateUser, id);
         return ResponseEntity.ok(updatedUser);
     }
-//    public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws BadLogInUpdateException {
-//        UserDTO updatedUser = userService.updateUserById(updateUser, id);
-//        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-//    }
 
 
     @DeleteMapping("/{id}")
@@ -91,10 +84,7 @@ public class UserController {
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }
-//    public  ResponseEntity<?> deleteUserById(@PathVariable Long id) throws UserTaskNotFoundException {
-//        userService.deleteUserById(id);
-//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//    }
+
 
     private boolean hasAuthorityUser(Long id) throws UserTaskNotFoundException {
         // Retrives the authenticated user
@@ -104,10 +94,9 @@ public class UserController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
         // Verify if the email of the user matches the one authenticated
         if (!userEntity.getEmail().equals(authenticatedEmail)) {
-            return false;//new ResponseEntity<>("You are not authorized to delete this users data", HttpStatus.FORBIDDEN);
+            return false;
         } else  return true;
     }
-
 }
 
 
@@ -134,4 +123,21 @@ public class UserController {
 //        }
 //        userService.createNewUser(newUser);
 //        return new ResponseEntity<>("User crated succesfully", HttpStatus.CREATED);
+//    }
+
+
+//    public UserDTO getUserById(@PathVariable Long id) throws UserTaskNotFoundException {
+//        return userService.getUserDTOById(id);
+//    };
+
+
+//    public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws BadLogInUpdateException {
+//        UserDTO updatedUser = userService.updateUserById(updateUser, id);
+//        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+//    }
+
+
+//    public  ResponseEntity<?> deleteUserById(@PathVariable Long id) throws UserTaskNotFoundException {
+//        userService.deleteUserById(id);
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 //    }

@@ -3,6 +3,7 @@ package com.mindhub.todolist.services;
 import com.mindhub.todolist.dtos.NewTask;
 import com.mindhub.todolist.dtos.TasksDTO;
 import com.mindhub.todolist.dtos.UpdateTask;
+import com.mindhub.todolist.exeptions.BadLogInUpdateException;
 import com.mindhub.todolist.exeptions.UserTaskNotFoundException;
 import com.mindhub.todolist.models.TaskEntity;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,10 @@ public interface TaskService {
 
     List<TaskEntity> getAllTasks();
 
-    TasksDTO createNewTask (NewTask newTask) throws UserTaskNotFoundException;
+    TasksDTO createNewTask (NewTask newTask) throws Exception;
     TaskEntity saveTask(TaskEntity newTask);
 
-    TasksDTO updateTaskById(UpdateTask updateTask, Long id) throws UserTaskNotFoundException; //throws TaskExceptions;
+    TasksDTO updateTaskById(UpdateTask updateTask, Long id) throws Exception; //throws TaskExceptions;
 
     void deleteTaskById(Long id) throws UserTaskNotFoundException;
 

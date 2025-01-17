@@ -2,7 +2,6 @@ package com.mindhub.todolist.controllers;
 
 import com.mindhub.todolist.dtos.UpdateUser;
 import com.mindhub.todolist.dtos.UserDTO;
-import com.mindhub.todolist.exeptions.BadLogInUpdateException;
 import com.mindhub.todolist.exeptions.UserTaskNotFoundException;
 import com.mindhub.todolist.repositories.UserRepository;
 import com.mindhub.todolist.services.UserService;
@@ -55,7 +54,7 @@ public class AdminController {
             @ApiResponse(responseCode = "201", description = "User successfully updated."),
             @ApiResponse(responseCode = "409", description = "Bad request, user not found.")
     })
-    public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws BadLogInUpdateException {
+    public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws Exception {
         UserDTO updatedUser = userService.updateUserById(updateUser, id);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }

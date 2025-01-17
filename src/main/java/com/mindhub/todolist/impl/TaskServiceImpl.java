@@ -3,8 +3,11 @@ package com.mindhub.todolist.impl;
 import com.mindhub.todolist.dtos.NewTask;
 import com.mindhub.todolist.dtos.TasksDTO;
 import com.mindhub.todolist.dtos.UpdateTask;
+import com.mindhub.todolist.exeptions.BadLogInUpdateException;
 import com.mindhub.todolist.exeptions.UserTaskNotFoundException;
 import com.mindhub.todolist.models.TaskEntity;
+import com.mindhub.todolist.models.TaskStatus;
+import com.mindhub.todolist.models.UserEntity;
 import com.mindhub.todolist.repositories.TaskRepository;
 import com.mindhub.todolist.repositories.UserRepository;
 import com.mindhub.todolist.services.TaskService;
@@ -38,8 +41,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TasksDTO createNewTask(NewTask newTask) throws UserTaskNotFoundException {
-        TaskEntity task = new TaskEntity(newTask.title(), newTask.description(), newTask.status(), newTask.user());
+    public TasksDTO createNewTask(NewTask newTask) throws Exception {
+        validateNewTask(newTask);
+        TaskStatus status = TaskStatus.valueOf(newTask.status());
+        TaskEntity task = new TaskEntity(newTask.title(), newTask.description(), status, newTask.user());
         TaskEntity savedTask = saveTask((task));
         return  new TasksDTO(savedTask);
     }
@@ -50,21 +55,24 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TasksDTO updateTaskById(UpdateTask updateTask, Long id) throws UserTaskNotFoundException {
+    public TasksDTO updateTaskById(UpdateTask updateTask, Long id) throws Exception {
         TaskEntity task = taskRepository.findById(id)
                 .orElseThrow(() -> new UserTaskNotFoundException("Task with ID " + id + " not found."));
 
-        if (updateTask.title().isBlank()) {
-            task.setTitle(task.getTitle());
-        } else task.setTitle(updateTask.title());
+        validateUpdatedTask(updateTask);
 
-        if (updateTask.description().isBlank()) {
-            task.setDescription(task.getDescription());
-        } else task.setDescription(updateTask.description());
+        if (!updateTask.title().isBlank()) {
+            task.setTitle(updateTask.title());
+        }
 
-        if (updateTask.status() == null) {
-            task.setStatus(task.getStatus());
-        } else task.setStatus(updateTask.status());
+        if (!updateTask.description().isBlank()) {
+            task.setDescription(updateTask.description());
+        }
+
+        if (updateTask.status().isBlank()) {
+            TaskStatus status = TaskStatus.valueOf(updateTask.status());
+            task.setStatus(status);
+        }
 
         TaskEntity updatedTask = taskRepository.save(task);
         return new TasksDTO(updatedTask);
@@ -88,4 +96,48 @@ public class TaskServiceImpl implements TaskService {
                 .map(user -> user.getId().equals(taskOwnerId))
                 .orElse(false);
     }
+
+    // Validations //
+
+    public void validateNewTask (NewTask newTask) throws Exception {
+        validateMissingInfo(newTask.status(), newTask.title(), newTask.description());
+        validateWrongStatus(newTask.status());
+    }
+
+    public static void validateMissingInfo(String status, String title, String description) throws BadLogInUpdateException {
+        if(status.isBlank() || title.isBlank() || description.isBlank()) {
+            throw new BadLogInUpdateException("All fields are required.");
+        }
+    }
+
+    public void validateUpdatedTask(UpdateTask updateTask) throws Exception {
+        validateAllBlank(updateTask.status(), updateTask.title(), updateTask.description());
+        validateWrongStatus(updateTask.status());
+    }
+
+    public static void validateAllBlank(String status, String title, String description) throws BadLogInUpdateException {
+        if(status.isBlank() && title.isBlank() && description.isBlank()) {
+            throw new BadLogInUpdateException("At least one value must be modified.");
+        }
+    }
+
+    public static void validateWrongStatus(String status) throws BadLogInUpdateException {
+        if(!status.equals("PENDING") && !status.equals("IN_PROGRESS") && !status.equals("COMPLETED")) {
+            throw new BadLogInUpdateException("Status must only be: PENDING, IN_PROGRESS, COMPLETED.");
+        }
+    }
 }
+
+
+
+//        if (updateTask.title().isBlank()) {
+//            task.setTitle(task.getTitle());
+//        } else task.setTitle(updateTask.title());
+//
+//        if (updateTask.description().isBlank()) {
+//            task.setDescription(task.getDescription());
+//        } else task.setDescription(updateTask.description());
+//
+//        if (updateTask.status() == null) {
+//            task.setStatus(task.getStatus());
+//        } else task.setStatus(updateTask.status());

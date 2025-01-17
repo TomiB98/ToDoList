@@ -12,15 +12,13 @@ import java.util.List;
 
 public interface UserService {
 
-
-
     UserDTO getUserDTOById (Long id) throws UserTaskNotFoundException;
     UserEntity getUserById (Long id) throws UserTaskNotFoundException;
 
     void createNewUser(NewUser newUser);
     UserEntity saveUser(UserEntity user);
 
-    UserDTO updateUserById(UpdateUser updatedUser, Long id) throws BadLogInUpdateException;
+    UserDTO updateUserById(UpdateUser updatedUser, Long id) throws Exception;
 
     void deleteUserById(Long id) throws UserTaskNotFoundException;
 

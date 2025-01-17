@@ -3,6 +3,7 @@ package com.mindhub.todolist.controllers;
 import com.mindhub.todolist.dtos.NewTask;
 import com.mindhub.todolist.dtos.TasksDTO;
 import com.mindhub.todolist.dtos.UpdateTask;
+import com.mindhub.todolist.exeptions.BadLogInUpdateException;
 import com.mindhub.todolist.exeptions.UserTaskNotFoundException;
 import com.mindhub.todolist.models.UserEntity;
 import com.mindhub.todolist.repositories.TaskRepository;
@@ -62,7 +63,7 @@ public class TaskController {
                 .map(TasksDTO::new)
                 .toList();
         if(tasklist.size() == 0) {
-             throw new UserTaskNotFoundException("There are no tasks available");
+             throw new UserTaskNotFoundException("There are no tasks available.");
         }
         return new ResponseEntity<>(tasklist, HttpStatus.OK);
     }
@@ -71,35 +72,23 @@ public class TaskController {
     @Operation(summary = "Creates a new task", description = "Receives a title, description, status and user id, creates a new task for thr specified user and returns the task.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Task successfully created."),
+            @ApiResponse(responseCode = "403", description = "Unauthorized to create a task for another user."),
             @ApiResponse(responseCode = "409", description = "Bad request, invalid data.")
     })
-    public ResponseEntity<?> createTask(@RequestBody NewTask newTask) throws UserTaskNotFoundException {
-
-        if(newTask.title() == null || newTask.title().isBlank()) {
-            return new ResponseEntity<>("Title cannot be null or blank", HttpStatus.BAD_REQUEST);
-        }
-        if(newTask.description() == null || newTask.description().isBlank()) {
-            return new ResponseEntity<>("Description cannot be null or blank", HttpStatus.BAD_REQUEST);
-        }
-        if(newTask.status() == null) {
-            return new ResponseEntity<>("Status cannot be null or blank", HttpStatus.BAD_REQUEST);
-        }
-        if(newTask.user() == null) {
-            return new ResponseEntity<>("User cannot be null or blank", HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<?> createTask(@RequestBody NewTask newTask) throws Exception {
 
         // Retrives the authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authenticatedEmail = authentication.getName();
         // Finds the user by ID
         UserEntity userEntity = userRepository.findById(newTask.user().getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found."));
         // Finds if it's an Admin
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
         // Verify if the email of the user matches the one authenticated of if it's an Admin
         if (!userEntity.getEmail().equals(authenticatedEmail) && !isAdmin) {
-            return new ResponseEntity<>("Unauthorized to create a task for another user", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("Unauthorized to create a task for another user.", HttpStatus.FORBIDDEN);
         }
 
         boolean userExists = userRepository.existsById(newTask.user().getId());
@@ -115,9 +104,10 @@ public class TaskController {
     @Operation(summary = "Updates a task", description = "Receives an id and updates the assigned task, you can update title, description or status independently if you leave one blank it will retrieve the old value.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Task successfully updated."),
+            @ApiResponse(responseCode = "403", description = "Unauthorized to update this task."),
             @ApiResponse(responseCode = "409", description = "Bad request, task not found.")
     })
-    public ResponseEntity<?> updateTaskById(@RequestBody UpdateTask updateTask, @PathVariable Long id) throws UserTaskNotFoundException {
+    public ResponseEntity<?> updateTaskById(@RequestBody UpdateTask updateTask, @PathVariable Long id) throws Exception {
 
         if (!hasAuthorityTask(id)) {
             return new ResponseEntity<>("Unauthorized to update this task", HttpStatus.FORBIDDEN);
@@ -131,6 +121,7 @@ public class TaskController {
     @Operation(summary = "Deletes a task", description = "Receives an id and and deletes the assigned task.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Task successfully deleted."),
+            @ApiResponse(responseCode = "403", description = "Unauthorized to delete this task."),
             @ApiResponse(responseCode = "400", description = "Bad request, task not found.")
     })
     public ResponseEntity<?> deleteTaskById(@PathVariable Long id) throws UserTaskNotFoundException {
@@ -158,3 +149,17 @@ public class TaskController {
         return taskService.isOwner(authenticatedUserEmail, taskOwnerId);
     }
 }
+
+
+//        if(newTask.title() == null || newTask.title().isBlank()) {
+//            return new ResponseEntity<>("Title cannot be null or blank", HttpStatus.BAD_REQUEST);
+//        }
+//        if(newTask.description() == null || newTask.description().isBlank()) {
+//            return new ResponseEntity<>("Description cannot be null or blank", HttpStatus.BAD_REQUEST);
+//        }
+//        if(newTask.status() == null) {
+//            return new ResponseEntity<>("Status cannot be null or blank", HttpStatus.BAD_REQUEST);
+//        }
+//        if(newTask.user() == null) {
+//            return new ResponseEntity<>("User cannot be null or blank", HttpStatus.BAD_REQUEST);
+//        }
