@@ -79,60 +79,61 @@ public class TaskServiceTest {
 
     @Test
     void testGetTaskById() throws UserTaskNotFoundException {
-
+        // Arrange: Mock the repository call
         when(taskRepository.findById(mockTaskEntity.getId())).thenReturn(java.util.Optional.of(mockTaskEntity));
 
-
+        // Act: Call the service method
         TaskEntity task = taskService.getTaskById(mockTaskEntity.getId());
 
-
+        // Assert: Verify the correct task is returned
         assertNotNull(task);
         assertEquals("Test Task", task.getTitle());
         assertEquals("This is a test task", task.getDescription());
         assertEquals(TaskStatus.PENDING, task.getStatus());
 
-
+        // Verify that the repository method was called once
         verify(taskRepository, times(1)).findById(mockTaskEntity.getId());
     }
 
     @Test
     void testGetTaskByIdTaskNotFound() {
-
+        // Arrange: Mock the repository to return an empty Optional
         when(taskRepository.findById(mockTaskEntity.getId())).thenReturn(java.util.Optional.empty());
 
+        // Act & Assert: Verify that an exception is thrown
         assertThrows(UserTaskNotFoundException.class, () -> taskService.getTaskById(mockTaskEntity.getId()));
 
-
+        // Verify that the repository method was called once
         verify(taskRepository, times(1)).findById(mockTaskEntity.getId());
     }
 
     @Test
     void testGetTaskDTOById() throws UserTaskNotFoundException {
-
+        // Arrange: Mock the repository call
         when(taskRepository.findById(mockTaskEntity.getId())).thenReturn(java.util.Optional.of(mockTaskEntity));
 
-
+        // Act: Call the service method
         TasksDTO taskDTO = taskService.getTaskDTOById(mockTaskEntity.getId());
 
-
+        // Assert: Verify the DTO properties
         assertNotNull(taskDTO);
         assertEquals("Test Task", taskDTO.getTitle());
         assertEquals("This is a test task", taskDTO.getDescription());
         assertEquals(TaskStatus.PENDING, taskDTO.getStatus());
 
-
+        // Verify that the repository method was called once
         verify(taskRepository, times(1)).findById(mockTaskEntity.getId());
     }
 
     @Test
     void testGetTaskDTOByIdTaskNotFound() {
-
+        // Arrange: Mock the repository to return an empty Optional
         when(taskRepository.findById(mockTaskEntity.getId())).thenReturn(java.util.Optional.empty());
 
-
+        // Act & Assert: Verify that an exception is thrown
         assertThrows(UserTaskNotFoundException.class, () -> taskService.getTaskDTOById(mockTaskEntity.getId()));
 
-
+        // Verify that the repository method was called once
         verify(taskRepository, times(1)).findById(mockTaskEntity.getId());
     }
 }
