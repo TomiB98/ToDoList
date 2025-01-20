@@ -10,6 +10,8 @@ public class TasksDTO {
     private String description;
     private TaskStatus status;
 
+    public TasksDTO() {}
+
     public TasksDTO(TaskEntity task) {
         id = task.getId();
         title = task.getTitle();

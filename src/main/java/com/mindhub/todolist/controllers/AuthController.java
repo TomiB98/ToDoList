@@ -3,6 +3,8 @@ package com.mindhub.todolist.controllers;
 import com.mindhub.todolist.config.JwtUtils;
 import com.mindhub.todolist.dtos.LoginUser;
 import com.mindhub.todolist.dtos.NewUser;
+import com.mindhub.todolist.models.RoleType;
+import com.mindhub.todolist.models.TaskStatus;
 import com.mindhub.todolist.repositories.UserRepository;
 import com.mindhub.todolist.services.UserService;
 import jakarta.validation.ValidationException;
@@ -79,6 +81,7 @@ public class AuthController {
         validatePassword(newUser.password());
         validateUserEmail(newUser.email());
         validateIfEmailExist(newUser.email());
+        validateIfRoleIsCorrect(newUser.role());
     }
 
     public static void validateUserName (String username) throws ValidationException {
@@ -110,6 +113,12 @@ public class AuthController {
     public void validateIfEmailExist (String email) {
         if(userRepository.findByEmail(email).isPresent()) {
             throw new ValidationException ("This email is already registered.");
+        }
+    }
+
+    public static void validateIfRoleIsCorrect(String role) {
+        if (!role.equals("USER") && !role.equals("ADMIN")) {
+            throw new ValidationException("Role must be ADMIN or USER.");
         }
     }
 }

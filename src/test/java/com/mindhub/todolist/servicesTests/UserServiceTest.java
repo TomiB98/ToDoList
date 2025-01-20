@@ -40,7 +40,6 @@ public class UserServiceTest {
     void setUp() {
         // Simular datos del usuario
         mockUserEntity = new UserEntity("testUser@gmail.com", "TestUser", "Testpass123.");
-        mockNewUser = new NewUser("testUser@gmail.com", "TestUser", "Testpass123.", RoleType.USER);
     }
 
     @Test
@@ -58,19 +57,19 @@ public class UserServiceTest {
         assertEquals("testUser@gmail.com", user.getEmail());
         assertEquals(0, user.getTasks().size());
 
-        // Verificar que el metodo fue llamado correctamente
+        // Verificar que el metodo fue llamado correctamente y una vez
         verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
     void testGetUserByIdUserNotFound() {
-        // Mock the repository to return an empty Optional
+        // Simular que el repositorio devolviendo el usuario vacio cuando se busca por ID
         when(userRepository.findById(mockUserEntity.getId())).thenReturn(java.util.Optional.empty());
 
-        // Verify that an exception is thrown
+        // Verifica que salte la excepcion
         assertThrows(UserTaskNotFoundException.class, () -> userService.getUserById(mockUserEntity.getId()));
 
-        // Verify that the repository method was called once
+        // Verifica que el metodo se llame una sola ves
         verify(userRepository, times(1)).findById(mockUserEntity.getId());
     }
 

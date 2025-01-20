@@ -41,12 +41,23 @@ public class UserController {
     })
     public ResponseEntity<?> getUserById(@PathVariable Long id) throws UserTaskNotFoundException {
 
-        if(!hasAuthorityUser(id)) {
-            return new ResponseEntity<>("You are not authorized to access this users data", HttpStatus.FORBIDDEN);
+        try {
+            if (!hasAuthorityUser(id)) {
+                return new ResponseEntity<>("You are not authorized to access this users data", HttpStatus.FORBIDDEN);
+            }
+
+            // Returns the user data
+            UserDTO userDTO = userService.getUserDTOById(id);
+            return ResponseEntity.ok(userDTO);
+
+        } catch (UserTaskNotFoundException e) {
+            // Handle the specific exception for user or task not found
+            return new ResponseEntity<>("User or task not found", HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            // Handle any other exceptions
+            return new ResponseEntity<>("An error occurred while fetching the data", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        // Returns the user data
-        UserDTO userDTO = userService.getUserDTOById(id);
-        return ResponseEntity.ok(userDTO);
+
     }
 
 
@@ -59,12 +70,20 @@ public class UserController {
     })
     public ResponseEntity<?> updateUserById(@RequestBody UpdateUser updateUser, @PathVariable Long id) throws Exception {
 
-        if(!hasAuthorityUser(id)) {
-            return new ResponseEntity<>("You are not authorized to update this users data", HttpStatus.FORBIDDEN);
+        try {
+            if (!hasAuthorityUser(id)) {
+                return new ResponseEntity<>("You are not authorized to update this users data", HttpStatus.FORBIDDEN);
+            }
+
+            // Updates the user and returns the updated user
+            UserDTO updatedUser = userService.updateUserById(updateUser, id);
+            return ResponseEntity.status(HttpStatus.CREATED).body(updatedUser); // Use 201 for successful creation/update
+
+        } catch (Exception e) {
+            // Handle any other exceptions
+            return new ResponseEntity<>("An error occurred while updating the user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        UserDTO updatedUser = userService.updateUserById(updateUser, id);
-        return ResponseEntity.ok(updatedUser);
     }
 
 
@@ -77,12 +96,23 @@ public class UserController {
     })
     public ResponseEntity<?> deleteUserById(@PathVariable Long id) throws UserTaskNotFoundException {
 
-        if(!hasAuthorityUser(id)) {
-            return new ResponseEntity<>("You are not authorized to delete this users data", HttpStatus.FORBIDDEN);
+        try {
+            if (!hasAuthorityUser(id)) {
+                return new ResponseEntity<>("You are not authorized to delete this users data", HttpStatus.FORBIDDEN);
+            }
+
+            // Deletes the user
+            userService.deleteUserById(id);
+            return ResponseEntity.noContent().build(); // Returns 204 No Content
+
+        } catch (UserTaskNotFoundException e) {
+            // Handle the specific exception for user not found
+            return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            // Handle any other exceptions
+            return new ResponseEntity<>("An error occurred while deleting the user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        userService.deleteUserById(id);
-        return ResponseEntity.noContent().build();
     }
 
 

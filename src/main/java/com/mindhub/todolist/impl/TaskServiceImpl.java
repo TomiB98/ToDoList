@@ -43,10 +43,12 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TasksDTO createNewTask(NewTask newTask) throws Exception {
         validateNewTask(newTask);
+        UserEntity user = userRepository.findById(newTask.userId())
+                .orElseThrow(() -> new UserTaskNotFoundException("User with ID " + newTask.userId() + " not found."));
         TaskStatus status = TaskStatus.valueOf(newTask.status());
-        TaskEntity task = new TaskEntity(newTask.title(), newTask.description(), status, newTask.user());
-        TaskEntity savedTask = saveTask((task));
-        return  new TasksDTO(savedTask);
+        TaskEntity task = new TaskEntity(newTask.title(), newTask.description(), status, user);
+        saveTask((task));
+        return new TasksDTO(task);
     }
 
     @Override
@@ -69,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
             task.setDescription(updateTask.description());
         }
 
-        if (updateTask.status().isBlank()) {
+        if (!updateTask.status().isBlank()) {
             TaskStatus status = TaskStatus.valueOf(updateTask.status());
             task.setStatus(status);
         }

@@ -18,10 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskServiceTest {
@@ -42,20 +41,21 @@ public class TaskServiceTest {
     @BeforeEach
     void setUp() {
         mockUser = new UserEntity();
-
-        mockNewTask = new NewTask("Test Task", "This is a test task", "PENDING", mockUser);
+        ReflectionTestUtils.setField(mockUser,"id", 1L);
+        mockNewTask = new NewTask("Test Task", "This is a test task", "PENDING", 1L);
         mockTaskEntity = new TaskEntity("Test Task", "This is a test task", TaskStatus.PENDING, mockUser);
+        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(mockUser));
     }
 
     @Test
     void testCreateNewTaskSuccess() throws Exception {
-        // Simular comportamiento del repositorio
+
         when(taskRepository.save(any(TaskEntity.class))).thenReturn(mockTaskEntity);
 
-        // Llamar al servicio
+        // Llamar a createNewTask con la tarea de prueba
         TasksDTO result = taskService.createNewTask(mockNewTask);
 
-        // Verificar que el repositorio fue llamado con los parámetros correctos
+        // Verificar que el repositorio fue llamado correctamente
         verify(taskRepository, times(1)).save(any(TaskEntity.class));
 
         // Asegurar que los valores de retorno sean los esperados
@@ -67,7 +67,7 @@ public class TaskServiceTest {
 
     @Test
     void testCreateNewTaskMissingInfo() {
-        NewTask invalidTask = new NewTask("", "", "", mockUser);
+        NewTask invalidTask = new NewTask("", "", "", 1L);
 
         Exception exception = assertThrows(BadLogInUpdateException.class, () -> {
             taskService.createNewTask(invalidTask);
@@ -79,58 +79,50 @@ public class TaskServiceTest {
 
     @Test
     void testGetTaskById() throws UserTaskNotFoundException {
-        // Arrange: Mock the repository call
+
         when(taskRepository.findById(mockTaskEntity.getId())).thenReturn(java.util.Optional.of(mockTaskEntity));
 
-        // Act: Call the service method
         TaskEntity task = taskService.getTaskById(mockTaskEntity.getId());
 
-        // Assert: Verify the correct task is returned
         assertNotNull(task);
         assertEquals("Test Task", task.getTitle());
         assertEquals("This is a test task", task.getDescription());
         assertEquals(TaskStatus.PENDING, task.getStatus());
 
-        // Verify that the repository method was called once
         verify(taskRepository, times(1)).findById(mockTaskEntity.getId());
     }
 
     @Test
     void testGetTaskByIdTaskNotFound() {
-        // Arrange: Mock the repository to return an empty Optional
+
         when(taskRepository.findById(mockTaskEntity.getId())).thenReturn(java.util.Optional.empty());
 
-        // Act & Assert: Verify that an exception is thrown
         assertThrows(UserTaskNotFoundException.class, () -> taskService.getTaskById(mockTaskEntity.getId()));
 
-        // Verify that the repository method was called once
         verify(taskRepository, times(1)).findById(mockTaskEntity.getId());
     }
 
     @Test
     void testGetTaskDTOById() throws UserTaskNotFoundException {
-        // Arrange: Mock the repository call
+
         when(taskRepository.findById(mockTaskEntity.getId())).thenReturn(java.util.Optional.of(mockTaskEntity));
 
-        // Act: Call the service method
         TasksDTO taskDTO = taskService.getTaskDTOById(mockTaskEntity.getId());
 
-        // Assert: Verify the DTO properties
         assertNotNull(taskDTO);
         assertEquals("Test Task", taskDTO.getTitle());
         assertEquals("This is a test task", taskDTO.getDescription());
         assertEquals(TaskStatus.PENDING, taskDTO.getStatus());
 
-        // Verify that the repository method was called once
         verify(taskRepository, times(1)).findById(mockTaskEntity.getId());
     }
 
     @Test
     void testGetTaskDTOByIdTaskNotFound() {
-        // Arrange: Mock the repository to return an empty Optional
+        // Mock the repository to return an empty optional
         when(taskRepository.findById(mockTaskEntity.getId())).thenReturn(java.util.Optional.empty());
 
-        // Act & Assert: Verify that an exception is thrown
+        // Verify that an exception is thrown
         assertThrows(UserTaskNotFoundException.class, () -> taskService.getTaskDTOById(mockTaskEntity.getId()));
 
         // Verify that the repository method was called once

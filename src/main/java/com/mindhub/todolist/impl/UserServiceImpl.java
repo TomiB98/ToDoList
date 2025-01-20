@@ -5,6 +5,8 @@ import com.mindhub.todolist.dtos.UpdateUser;
 import com.mindhub.todolist.dtos.UserDTO;
 import com.mindhub.todolist.exeptions.BadLogInUpdateException;
 import com.mindhub.todolist.exeptions.UserTaskNotFoundException;
+import com.mindhub.todolist.models.RoleType;
+import com.mindhub.todolist.models.TaskStatus;
 import com.mindhub.todolist.models.UserEntity;
 import com.mindhub.todolist.repositories.UserRepository;
 import com.mindhub.todolist.services.UserService;
@@ -46,7 +48,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createNewUser(NewUser newUser) {
-        UserEntity user = new UserEntity(newUser.email(), newUser.username(), passwordEncoder.encode(newUser.password()), newUser.role());
+        RoleType role = RoleType.valueOf(newUser.role());
+        UserEntity user = new UserEntity(newUser.email(), newUser.username(), passwordEncoder.encode(newUser.password()), role);
         UserEntity savedUser = saveUser(user);
     }
 

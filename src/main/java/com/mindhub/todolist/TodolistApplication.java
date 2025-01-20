@@ -20,31 +20,31 @@ public class TodolistApplication {
 		SpringApplication.run(TodolistApplication.class, args);
 	}
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+//	@Autowired
+//	private PasswordEncoder passwordEncoder;
 
-	@Bean
-	public CommandLineRunner initData(UserRepository userRepository, TaskRepository taskRepository) {
-		return args -> {
-
-//			UserEntity user = new UserEntity("tomas@gmail.com", "Tomas", passwordEncoder.encode("123456"));
-			UserEntity user = new UserEntity("tomas@gmail.com", "Tomas", passwordEncoder.encode("Tomas123."), RoleType.USER);
-			userRepository.save(user);
-			System.out.println(user);
-
-			UserEntity user1 = new UserEntity("manubal@gmail.com", "Manuel", passwordEncoder.encode("Manuel123."), RoleType.USER);
-			userRepository.save(user1);
-			System.out.println(user1);
-
-			UserEntity user2 = userRepository.findById(1L).orElse(null);
-			System.out.println(user2);
-
-//			TaskEntity task = new TaskEntity("TrashOut","Take the trash bag out", TaskStatus.PENDING);
-//			user.addTask(task);
-
-			System.out.println("Server Running!");
-		};
-	}
+//	@Bean
+//	public CommandLineRunner initData(UserRepository userRepository, TaskRepository taskRepository) {
+//		return args -> {
+//
+////			UserEntity user = new UserEntity("tomas@gmail.com", "Tomas", passwordEncoder.encode("123456"));
+//			UserEntity user = new UserEntity("tomas@gmail.com", "Tomas", passwordEncoder.encode("Tomas123."), RoleType.USER);
+//			userRepository.save(user);
+//			System.out.println(user);
+//
+//			UserEntity user1 = new UserEntity("manubal@gmail.com", "Manuel", passwordEncoder.encode("Manuel123."), RoleType.USER);
+//			userRepository.save(user1);
+//			System.out.println(user1);
+//
+//			UserEntity user2 = userRepository.findById(1L).orElse(null);
+//			System.out.println(user2);
+//
+////			TaskEntity task = new TaskEntity("TrashOut","Take the trash bag out", TaskStatus.PENDING);
+////			user.addTask(task);
+//
+//			System.out.println("Server Running!");
+//		};
+//	}
 }
 
 //import com.mind hub.todolist.repositories.TaskRepository;

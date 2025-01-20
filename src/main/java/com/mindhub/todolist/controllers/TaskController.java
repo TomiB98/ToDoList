@@ -46,7 +46,7 @@ public class TaskController {
             @ApiResponse(responseCode = "200", description = "Data successfully received."),
             @ApiResponse(responseCode = "400", description = "Bad request, invalid id.")
     })
-    private ResponseEntity<?> getTaskById(@PathVariable Long id) throws UserTaskNotFoundException{
+    public ResponseEntity<?> getTaskById(@PathVariable Long id) throws UserTaskNotFoundException{
         TasksDTO tasksDTO = taskService.getTaskDTOById(id);
         return new ResponseEntity<> (tasksDTO, HttpStatus.OK);
     }
@@ -81,7 +81,7 @@ public class TaskController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authenticatedEmail = authentication.getName();
         // Finds the user by ID
-        UserEntity userEntity = userRepository.findById(newTask.user().getId())
+        UserEntity userEntity = userRepository.findById(newTask.userId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found."));
         // Finds if it's an Admin
         boolean isAdmin = authentication.getAuthorities().stream()
@@ -91,7 +91,7 @@ public class TaskController {
             return new ResponseEntity<>("Unauthorized to create a task for another user.", HttpStatus.FORBIDDEN);
         }
 
-        boolean userExists = userRepository.existsById(newTask.user().getId());
+        boolean userExists = userRepository.existsById(newTask.userId());
         if (!userExists) {
             throw new UserTaskNotFoundException("User not found");
         }
