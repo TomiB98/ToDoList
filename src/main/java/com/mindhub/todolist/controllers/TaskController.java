@@ -57,7 +57,7 @@ public class TaskController {
             @ApiResponse(responseCode = "200", description = "Data successfully received."),
             @ApiResponse(responseCode = "400", description = "Bad request, pool task empty.")
     })
-    private ResponseEntity<?> getAllTasks() throws UserTaskNotFoundException {
+    public ResponseEntity<?> getAllTasks() throws UserTaskNotFoundException {
         List<TasksDTO> tasklist = taskService.getAllTasks()
                 .stream()
                 .map(TasksDTO::new)
